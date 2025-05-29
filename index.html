@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengelompokan Rail Gorden + Data Customer</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+  input, textarea, button {
+    margin-top: 10px; width: 100%; padding: 12px; font-size: 16px; box-sizing: border-box;
+  }
+  label { font-weight: bold; display: block; margin-top: 15px; }
+  .output { background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px; }
+  .group { margin-bottom: 10px; padding: 10px; border-left: 5px solid #007bff; background: #e9ecef; }
+  #printBtn, #saveBtn, button {
+    background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px;
+  }
+  #printBtn:hover, #saveBtn:hover, button:hover { background-color: #0056b3; }
+  @media screen and (max-width: 600px) {
+    body { padding: 10px; }
+    table { font-size: 14px; }
+    th, td { padding: 6px !important; }
+  }
+</style>
+</head>
+<body>
+<h2>Simulasi Pengelompokan Rail Gorden IG/DG/MG/RG/IDK</h2>
+
+<label>Nama Customer:</label>
+<input id="namaCustomer" type="text" placeholder="Contoh: Ibu Lisa" />
+
+<label>Alamat:</label>
+<textarea id="alamatCustomer" rows="2" placeholder="Contoh: Jl. Cendrawasih No.123, Makassar"></textarea>
+
+<label>Nomor HP:</label>
+<input id="hpCustomer" type="text" placeholder="Contoh: 081234567890" />
+
+<label>Tanggal Pekerjaan:</label>
+<input id="tanggalPekerjaan" type="date" readonly />
+
+<label>Waktu Pekerjaan:</label>
+<input id="waktuPekerjaan" type="time" readonly />
+
+<label>Jenis Rail Gorden:</label>
+<input id="jenisRail" type="text" placeholder="Contoh: IG, DG, RG, MG, dll." />
+
+<label>Panjang maksimal 1 batang rail (cm):</label>
+<input id="maxLength" type="number" value="600" />
+
+<label>Masukkan panjang potongan rail (satu per baris):</label>
+<textarea id="inputPotongan" rows="8" placeholder="Contoh:
+150
+200
+300
+..."></textarea>
+
+<button onclick="kelompokkanRail()">🔍 Kelompokkan Potongan</button>
+<button id="previewBtn" onclick="previewData()">👁 Preview Data</button>
+<button id="printBtn" onclick="printHasil()" style="display:none;">🖨 Cetak Hasil</button>
+<button id="saveBtn" onclick="simpanData()" style="display:none;">💾 Simpan Data</button>
+
+<div class="output" id="output"></div>
+
+<script>
+  let hasilKelompok = "";
+
+  function kelompokkanRail() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+
+    document.getElementById("tanggalPekerjaan").value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById("waktuPekerjaan").value = `${hh}:${min}`;
+
+    const input = document.getElementById('inputPotongan').value;
+    const maxLength = parseInt(document.getElementById('maxLength').value);
+    const potongan = input.split('\n').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+    potongan.sort((a, b) => b - a);
+
+    const kelompok = [];
+
+    while (potongan.length > 0) {
+      let bestCombo = [];
+      let bestTotal = 0;
+
+      function findCombos(current, start) {
+        const sum = current.reduce((a, b) => a + b, 0);
+        if (sum > maxLength) return;
+        if (sum > bestTotal) {
+          bestTotal = sum;
+          bestCombo = [...current];
+        }
+        for (let i = start; i < potongan.length; i++) {
+          current.push(potongan[i]);
+          findCombos(current, i + 1);
+          current.pop();
+        }
+      }
+
+      findCombos([], 0);
+
+      if (bestCombo.length > 0) {
+        kelompok.push(bestCombo);
+        bestCombo.forEach(val => {
+          const idx = potongan.indexOf(val);
+          if (idx !== -1) potongan.splice(idx, 1);
+        });
+      } else {
+        kelompok.push([potongan[0]]);
+        potongan.splice(0, 1);
+      }
+    }
+
+    const output = document.getElementById('output');
+    hasilKelompok = `Total Batang yang Digunakan: ${kelompok.length}\n`;
+    output.innerHTML = `<h3>Total Batang yang Digunakan: ${kelompok.length}</h3>`;
+
+    let totalEndcup = 0;
+    let totalBracket = 0;
+
+    kelompok.forEach((group, index) => {
+      const total = group.reduce((a, b) => a + b, 0);
+      const sisa = maxLength - total;
+      hasilKelompok += `Batang ${index + 1}: ${group.join(', ')} cm (Sisa: ${sisa} cm)\n`;
+      output.innerHTML += `
+        <div class="group">
+          <strong>Batang ${index + 1}:</strong> ${group.join(', ')} cm<br>
+          <em>Sisa: ${sisa} cm</em>
+        </div>`;
+      
+      group.forEach(size => {
+        totalEndcup += 2;
+        totalBracket += 2; // 2 bracket dasar
+
+        if (size >= 300) {
+          totalBracket += 2;
+        } else if (size >= 190 && size < 300) {
+          totalBracket += 1;
+        }
+      });
+    });
+
+    hasilKelompok += `\nTOTAL ENDCUP: ${totalEndcup} pcs\nTOTAL BRACKET: ${totalBracket} pcs\n`;
+    output.innerHTML += `
+      <div class="group">
+        <strong>Total Endcup:</strong> ${totalEndcup} pcs<br>
+        <strong>Total Bracket:</strong> ${totalBracket} pcs
+      </div>`;
+
+    document.getElementById("printBtn").style.display = "inline-block";
+    document.getElementById("saveBtn").style.display = "inline-block";
+  }
+
+  
+  function previewData() {
+    const nama = document.getElementById("namaCustomer").value;
+    const alamat = document.getElementById("alamatCustomer").value;
+    const hp = document.getElementById("hpCustomer").value;
+    const tanggal = document.getElementById("tanggalPekerjaan").value;
+    const waktu = document.getElementById("waktuPekerjaan").value;
+    const jenis = document.getElementById("jenisRail").value;
+
+    let tabelCustomer = `
+      <div style="overflow-x: auto;">
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+          <tr><th colspan="2">Data Customer</th></tr>
+          <tr><td><strong>Nama</strong></td><td>${nama}</td></tr>
+          <tr><td><strong>Alamat</strong></td><td>${alamat}</td></tr>
+          <tr><td><strong>HP</strong></td><td>${hp}</td></tr>
+          <tr><td><strong>Tanggal</strong></td><td>${tanggal}</td></tr>
+          <tr><td><strong>Waktu</strong></td><td>${waktu}</td></tr>
+          <tr><td><strong>Jenis Rail</strong></td><td>${jenis}</td></tr>
+        </table>
+      </div><br>`;
+
+    let tabelHasil = "<div style='overflow-x:auto;'><table border='1' cellpadding='10' cellspacing='0' style='width: 100%; border-collapse: collapse;'>";
+    tabelHasil += "<tr><th>Batang Ke-</th><th>Potongan (cm)</th><th>Total</th><th>Sisa</th></tr>";
+
+    const potongan = hasilKelompok.split('\n').filter(row => row.includes("Batang"));
+    potongan.forEach(row => {
+      const match = row.match(/Batang (\d+): ([\d,\s]+) cm \(Sisa: (\d+) cm\)/);
+      if (match) {
+        const [_, nomor, potong, sisa] = match;
+        const total = potong.split(',').map(x => parseInt(x)).reduce((a,b) => a+b, 0);
+        tabelHasil += `<tr><td>${nomor}</td><td>${potong}</td><td>${total} cm</td><td>${sisa} cm</td></tr>`;
+      }
+    });
+    tabelHasil += "</table></div>";
+
+    const previewWindow = window.open("", "PreviewWindow", "width=400,height=600,scrollbars=yes");
+    previewWindow.document.write(`
+      <html><head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Preview Data</title>
+      <style>
+        body { font-family: Arial; padding: 15px; }
+        h2 { text-align: center; }
+        table { font-size: 14px; }
+        th, td { padding: 8px; }
+        button {
+          margin-top: 15px;
+          background-color: #25D366;
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          font-size: 16px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+      </style>
+      </head><body>
+      <h2>Preview Data Customer & Pengelompokan Rail</h2>
+      ${tabelCustomer}
+      ${tabelHasil}
+    `);
+
+    const teksWA = encodeURIComponent(
+      `📋 Data Rail Gorden\nNama: ${nama}\nAlamat: ${alamat}\nHP: ${hp}\nTanggal: ${tanggal}\nWaktu: ${waktu}\nJenis: ${jenis}\n\n${hasilKelompok}`
+    );
+
+    previewWindow.document.write(`
+      <br>
+      <button onclick="window.open('https://wa.me/?text=${teksWA}', '_blank')">
+        📤 Share ke WhatsApp
+      </button>
+    `);
+
+    previewWindow.document.write("</body></html>");
+    previewWindow.document.close();
+  }
+
+  function printHasil() {
+    const content = document.getElementById('output').innerHTML;
+    const printWindow = window.open('', '', 'height=700,width=800');
+    printWindow.document.write('<html><head><title>Cetak Data</title></head><body>');
+    printWindow.document.write(content);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+  }
+
+  function simpanData() {
+    const nama = document.getElementById("namaCustomer").value;
+    const alamat = document.getElementById("alamatCustomer").value;
+    const hp = document.getElementById("hpCustomer").value;
+    const tanggal = document.getElementById("tanggalPekerjaan").value;
+    const waktu = document.getElementById("waktuPekerjaan").value;
+    const jenis = document.getElementById("jenisRail").value;
+
+    const isi = 
+`NAMA CUSTOMER : ${nama}
+ALAMAT        : ${alamat}
+HP            : ${hp}
+TANGGAL       : ${tanggal}
+WAKTU         : ${waktu}
+JENIS RAIL    : ${jenis}
+
+HASIL PENGELOMPOKAN:
+${hasilKelompok}`;
+
+    const blob = new Blob([isi], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rail_gorden_${nama.replace(/\s+/g, '_')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>

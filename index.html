@@ -648,6 +648,18 @@ tr:hover {
       }
     }, 100);
   }
+      // Show status message
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+          
           // Download the canvas as an image
         function downloadImage(canvas, filename = 'webpage-screenshot.png') {
             try {

@@ -5,144 +5,536 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pengelompokan Rail Gorden + Data Customer</title>
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
-  input, textarea, button {
-    margin-top: 10px; width: 100%; padding: 12px; font-size: 16px; box-sizing: border-box;
+  /* === MODERN MATERIAL DESIGN STYLES === */
+
+/* CSS Custom Properties for consistent theming */
+:root {
+  --primary-color: #1976d2;
+  --primary-hover: #1565c0;
+  --primary-light: #e3f2fd;
+  --secondary-color: #03dac6;
+  --surface-color: #ffffff;
+  --background-color: #f5f5f5;
+  --on-surface: #212121;
+  --on-surface-variant: #757575;
+  --border-color: #e0e0e0;
+  --shadow-light: 0 2px 4px rgba(0,0,0,0.12);
+  --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
+  --shadow-heavy: 0 8px 24px rgba(0,0,0,0.18);
+  --border-radius: 12px;
+  --border-radius-small: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === BASE STYLES === */
+* {
+  box-sizing: border-box;
+}
+
+body { 
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: var(--on-surface);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 24px;
+}
+
+/* === CONTAINER & LAYOUT === */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+}
+
+.content-wrapper {
+  padding: 32px;
+}
+
+/* === FORM ELEMENTS === */
+.form-group {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+label { 
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--on-surface);
+  display: block;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Material Design Input Fields */
+input, textarea, select {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  background: var(--surface-color);
+  color: var(--on-surface);
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+  transform: translateY(-1px);
+}
+
+input:hover, textarea:hover, select:hover {
+  border-color: var(--on-surface-variant);
+}
+
+/* Floating Label Effect */
+.floating-label {
+  position: relative;
+}
+
+.floating-label input {
+  padding-top: 24px;
+  padding-bottom: 8px;
+}
+
+.floating-label label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  transition: var(--transition);
+  pointer-events: none;
+  color: var(--on-surface-variant);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  top: 4px;
+  font-size: 12px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* === BUTTONS === */
+button, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Primary Button */
+.btn-primary, #printBtn, #saveBtn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #1e88e5 100%);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover, #printBtn:hover, #saveBtn:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #1565c0 100%);
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--surface-color);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+/* Button Ripple Effect */
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+  transform: translate(-50%, -50%);
+}
+
+button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* === OUTPUT & CONTENT AREAS === */
+.output {
+  background: var(--surface-color);
+  padding: 24px;
+  border-radius: var(--border-radius);
+  margin-top: 24px;
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-color);
+}
+
+/* Group Styling with Modern Cards */
+.group {
+  background: var(--surface-color);
+  margin-bottom: 16px;
+  padding: 20px;
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  position: relative;
+}
+
+.group:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-color), transparent);
+}
+
+/* === TABLES === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: var(--surface-color);
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #1e88e5 100%);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+}
+
+tr:hover {
+  background: var(--primary-light);
+  transition: var(--transition);
+}
+
+/* === RESPONSIVE DESIGN === */
+@media screen and (max-width: 768px) {
+  body { 
+    padding: 16px; 
   }
-  label { font-weight: bold; display: block; margin-top: 15px; }
-  .output { background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px; }
-  .group { margin-bottom: 10px; padding: 10px; border-left: 5px solid #007bff; background: #e9ecef; }
-  #printBtn, #saveBtn, button {
-    background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px;
+  
+  .content-wrapper {
+    padding: 20px;
   }
-  #printBtn:hover, #saveBtn:hover, button:hover { background-color: #0056b3; }
-  @media screen and (max-width: 600px) {
-    body { padding: 10px; }
-    table { font-size: 14px; }
-    th, td { padding: 6px !important; }
+  
+  table { 
+    font-size: 14px; 
   }
+  
+  th, td { 
+    padding: 8px 12px;
+  }
+  
+  button, .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .group {
+    padding: 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+  
+  .content-wrapper {
+    padding: 16px;
+  }
+  
+  input, textarea, select {
+    padding: 12px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  th, td {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* === UTILITY CLASSES === */
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+
+.text-center { text-align: center; }
+.text-bold { font-weight: 600; }
+.text-muted { color: var(--on-surface-variant); }
+
+.d-flex { display: flex; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.gap-1 { gap: 8px; }
+.gap-2 { gap: 16px; }
+
+/* === DARK MODE SUPPORT === */
+@media (prefers-color-scheme: light) {
+  :root {
+    --primary-color: #90caf9;
+    --primary-hover: #64b5f6;
+    --primary-light: #1e3a5f;
+    --surface-color: #1e1e1e;
+    --background-color: #121212;
+    --on-surface: #ffffff;
+    --on-surface-variant: #b0b0b0;
+    --border-color: #333333;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+}
 </style>
 </head>
 <body>
+
+<!-- === HEADER APLIKASI === -->
 <h2>Simulasi Pengelompokan Rail Gorden IG/DG/MG/RG/IDK</h2>
 
+<!-- === FORM INPUT DATA CUSTOMER === -->
+<!-- Input nama customer -->
 <label>Nama Customer:</label>
 <input id="namaCustomer" type="text" placeholder="Contoh: Ibu Lisa" />
 
+<!-- Input alamat customer -->
 <label>Alamat:</label>
 <textarea id="alamatCustomer" rows="2" placeholder="Contoh: Jl. Cendrawasih No.123, Makassar"></textarea>
 
+<!-- Input nomor HP customer -->
 <label>Nomor HP:</label>
 <input id="hpCustomer" type="text" placeholder="Contoh: 081234567890" />
 
+<!-- Input tanggal (readonly - otomatis terisi) -->
 <label>Tanggal Pekerjaan:</label>
 <input id="tanggalPekerjaan" type="date" readonly />
 
+<!-- Input waktu (readonly - otomatis terisi) -->
 <label>Waktu Pekerjaan:</label>
 <input id="waktuPekerjaan" type="time" readonly />
 
+<!-- Input jenis rail gorden -->
 <label>Jenis Rail Gorden:</label>
 <input id="jenisRail" type="text" placeholder="Contoh: IG, DG, RG, MG, dll." />
 
+<!-- === FORM INPUT KONFIGURASI RAIL === -->
+<!-- Input panjang maksimal 1 batang rail -->
 <label>Panjang maksimal 1 batang rail (cm):</label>
 <input id="maxLength" type="number" value="600" />
 
+<!-- Input daftar panjang potongan rail -->
 <label>Masukkan panjang potongan rail (satu per baris):</label>
-<textarea id="inputPotongan" rows="8" placeholder="Contoh:
+<textarea id="inputPotongan" rows="8" type="number" placeholder="Contoh:
 150
 200
 300
 ..."></textarea>
 
+<!-- === TOMBOL-TOMBOL AKSI === -->
+<!-- Tombol utama untuk memulai pengelompokan -->
 <button onclick="kelompokkanRail()">🔍 Kelompokkan Potongan</button>
+
+<!-- Tombol untuk preview data -->
 <button id="previewBtn" onclick="previewData()">👁 Preview Data</button>
-<button id="printBtn" onclick="printHasil()" style="display:none;">🖨 Cetak Hasil</button>
+
+<!-- Tombol simpan (hidden by default) -->
 <button id="saveBtn" onclick="simpanData()" style="display:none;">💾 Simpan Data</button>
 
+<!-- === CONTAINER OUTPUT === -->
+<!-- Div untuk menampilkan hasil pengelompokan -->
 <div class="output" id="output"></div>
 
 <script>
-  let hasilKelompok = "";
+  // === VARIABEL GLOBAL === 
+  let hasilKelompok = ""; // Menyimpan hasil pengelompokan dalam format string
+  let totalEndcup = 0;  // Total endcup yang dibutuhkan
+  let totalBracket = 0; // Total bracket yang dibutuhkan
 
+  // === FUNGSI UTAMA PENGELOMPOKAN === 
   function kelompokkanRail() {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const hh = String(now.getHours()).padStart(2, '0');
-    const min = String(now.getMinutes()).padStart(2, '0');
+    // === MENGATUR TANGGAL DAN WAKTU OTOMATIS ===
+    const now = new Date(); // Mendapatkan waktu sekarang
+    const yyyy = now.getFullYear(); // Tahun
+    const mm = String(now.getMonth() + 1).padStart(2, '0'); // Bulan (ditambah 1 karena dimulai dari 0)
+    const dd = String(now.getDate()).padStart(2, '0'); // Tanggal
+    const hh = String(now.getHours()).padStart(2, '0'); // Jam
+    const min = String(now.getMinutes()).padStart(2, '0'); // Menit
 
+    // Mengisi field tanggal dan waktu otomatis
     document.getElementById("tanggalPekerjaan").value = `${yyyy}-${mm}-${dd}`;
     document.getElementById("waktuPekerjaan").value = `${hh}:${min}`;
 
-    const input = document.getElementById('inputPotongan').value;
-    const maxLength = parseInt(document.getElementById('maxLength').value);
-    const potongan = input.split('\n').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+    // === MEMPROSES INPUT POTONGAN ===
+    const input = document.getElementById('inputPotongan').value; // Ambil input textarea
+    const maxLength = parseInt(document.getElementById('maxLength').value); // Panjang maksimal per batang
+    
+    // Parsing input: split per baris, convert ke integer, filter yang valid
+    const potongan = input.split('\n')
+      .map(x => parseInt(x.trim())) // Konversi ke angka
+      .filter(x => !isNaN(x)); // Hapus yang bukan angka
+    
+    // Mengurutkan dari besar ke kecil (algoritma greedy)
     potongan.sort((a, b) => b - a);
 
-    const kelompok = [];
+    // === ALGORITMA PENGELOMPOKAN ===
+    const kelompok = []; // Array untuk menyimpan hasil pengelompokan
 
+    // Loop sampai semua potongan habis
     while (potongan.length > 0) {
-      let bestCombo = [];
-      let bestTotal = 0;
+      let bestCombo = []; // Kombinasi terbaik sementara
+      let bestTotal = 0;  // Total terbaik sementara
 
+      // === ALGORITMA PENCARIAN KOMBINASI TERBAIK ===
+      // Fungsi rekursif untuk mencari semua kemungkinan kombinasi
       function findCombos(current, start) {
-        const sum = current.reduce((a, b) => a + b, 0);
+        const sum = current.reduce((a, b) => a + b, 0); // Hitung total panjang saat ini
+        
+        // Jika melebihi panjang maksimal, hentikan
         if (sum > maxLength) return;
+        
+        // Jika lebih baik dari kombinasi sebelumnya, simpan
         if (sum > bestTotal) {
           bestTotal = sum;
-          bestCombo = [...current];
+          bestCombo = [...current]; // Copy array
         }
+        
+        // Coba tambah potongan lain ke kombinasi
         for (let i = start; i < potongan.length; i++) {
-          current.push(potongan[i]);
-          findCombos(current, i + 1);
-          current.pop();
+          current.push(potongan[i]); // Tambah potongan ke kombinasi
+          findCombos(current, i + 1); // Rekursi
+          current.pop(); // Backtrack: hapus potongan yang baru ditambah
         }
       }
 
+      // Mulai pencarian kombinasi
       findCombos([], 0);
 
+      // === PROSES HASIL KOMBINASI ===
       if (bestCombo.length > 0) {
-        kelompok.push(bestCombo);
+        // Jika ada kombinasi yang ditemukan
+        kelompok.push(bestCombo); // Tambah ke hasil akhir
+        
+        // Hapus potongan yang sudah digunakan dari array utama
         bestCombo.forEach(val => {
           const idx = potongan.indexOf(val);
           if (idx !== -1) potongan.splice(idx, 1);
         });
       } else {
+        // Jika tidak ada kombinasi (potongan terlalu besar), ambil 1 saja
         kelompok.push([potongan[0]]);
         potongan.splice(0, 1);
       }
     }
 
+    // === MENAMPILKAN HASIL ===
     const output = document.getElementById('output');
-    hasilKelompok = `Total Batang yang Digunakan: ${kelompok.length}\n`;
-    output.innerHTML = `<h3>Total Batang yang Digunakan: ${kelompok.length}</h3>`;
+    hasilKelompok = `Total Batang yang Digunakan: ${kelompok.length}\n`; // Reset hasil string
+    output.innerHTML = `<h3>Total Batang yang Digunakan: ${kelompok.length}</h3>`; // Header hasil
 
-    let totalEndcup = 0;
-    let totalBracket = 0;
+    // === PERHITUNGAN ENDCUP DAN BRACKET ===
 
+
+    // Loop setiap kelompok batang
     kelompok.forEach((group, index) => {
-      const total = group.reduce((a, b) => a + b, 0);
-      const sisa = maxLength - total;
+      const total = group.reduce((a, b) => a + b, 0); // Total panjang dalam kelompok
+      const sisa = maxLength - total; // Sisa panjang
+      
+      // Tambah ke string hasil
       hasilKelompok += `Batang ${index + 1}: ${group.join(', ')} cm (Sisa: ${sisa} cm)\n`;
+      
+      // Tambah ke HTML output
       output.innerHTML += `
         <div class="group">
           <strong>Batang ${index + 1}:</strong> ${group.join(', ')} cm<br>
           <em>Sisa: ${sisa} cm</em>
         </div>`;
       
+      // === PERHITUNGAN ENDCUP DAN BRACKET PER POTONGAN ===
       group.forEach(size => {
-        totalEndcup += 2;
-        totalBracket += 2; // 2 bracket dasar
+        totalEndcup += 2; // Setiap potongan butuh 2 endcup
+        totalBracket += 2; // 2 bracket dasar per potongan
 
+        // Bracket tambahan berdasarkan panjang potongan
         if (size >= 300) {
-          totalBracket += 2;
+          totalBracket += 2; // Tambah 2 bracket untuk potongan ≥300cm
         } else if (size >= 190 && size < 300) {
-          totalBracket += 1;
+          totalBracket += 1; // Tambah 1 bracket untuk potongan 190-299cm
         }
+        // Untuk potongan <190cm, tidak ada bracket tambahan
       });
     });
 
+    // === MENAMBAHKAN TOTAL ENDCUP DAN BRACKET KE HASIL ===
     hasilKelompok += `\nTOTAL ENDCUP: ${totalEndcup} pcs\nTOTAL BRACKET: ${totalBracket} pcs\n`;
     output.innerHTML += `
       <div class="group">
@@ -150,12 +542,15 @@
         <strong>Total Bracket:</strong> ${totalBracket} pcs
       </div>`;
 
+    // === MENAMPILKAN TOMBOL AKSI ===
+    // Setelah proses selesai, tampilkan tombol cetak dan simpan
     document.getElementById("printBtn").style.display = "inline-block";
     document.getElementById("saveBtn").style.display = "inline-block";
   }
 
-  
+  // === FUNGSI PREVIEW DATA ===
   function previewData() {
+    // Ambil semua data customer dari form
     const nama = document.getElementById("namaCustomer").value;
     const alamat = document.getElementById("alamatCustomer").value;
     const hp = document.getElementById("hpCustomer").value;
@@ -163,6 +558,7 @@
     const waktu = document.getElementById("waktuPekerjaan").value;
     const jenis = document.getElementById("jenisRail").value;
 
+    // === MEMBUAT TABEL DATA CUSTOMER ===
     let tabelCustomer = `
       <div style="overflow-x: auto;">
         <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
@@ -173,76 +569,142 @@
           <tr><td><strong>Tanggal</strong></td><td>${tanggal}</td></tr>
           <tr><td><strong>Waktu</strong></td><td>${waktu}</td></tr>
           <tr><td><strong>Jenis Rail</strong></td><td>${jenis}</td></tr>
+          <tr><td><strong>Total Endcup </strong></td><td>${totalEndcup} \nBiji</td></tr>
+          <tr><td><strong>Total Bracket </strong></td><td>${totalBracket} \nBiji</td></tr>
         </table>
       </div><br>`;
 
+    // === MEMBUAT TABEL HASIL PENGELOMPOKAN ===
     let tabelHasil = "<div style='overflow-x:auto;'><table border='1' cellpadding='10' cellspacing='0' style='width: 100%; border-collapse: collapse;'>";
     tabelHasil += "<tr><th>Batang Ke-</th><th>Potongan (cm)</th><th>Total</th><th>Sisa</th></tr>";
 
+    // Parsing hasil pengelompokan dari string
     const potongan = hasilKelompok.split('\n').filter(row => row.includes("Batang"));
     potongan.forEach(row => {
+      // Regex untuk extract data dari setiap baris hasil
       const match = row.match(/Batang (\d+): ([\d,\s]+) cm \(Sisa: (\d+) cm\)/);
       if (match) {
         const [_, nomor, potong, sisa] = match;
+        // Hitung total dari potongan-potongan
         const total = potong.split(',').map(x => parseInt(x)).reduce((a,b) => a+b, 0);
         tabelHasil += `<tr><td>${nomor}</td><td>${potong}</td><td>${total} cm</td><td>${sisa} cm</td></tr>`;
       }
     });
     tabelHasil += "</table></div>";
 
+    // === MEMBUKA WINDOW PREVIEW ===
     const previewWindow = window.open("", "PreviewWindow", "width=400,height=600,scrollbars=yes");
-    previewWindow.document.write(`
-      <html><head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Preview Data</title>
-      <style>
-        body { font-family: Arial; padding: 15px; }
-        h2 { text-align: center; }
-        table { font-size: 14px; }
-        th, td { padding: 8px; }
-        button {
-          margin-top: 15px;
-          background-color: #25D366;
-          color: white;
-          border: none;
-          padding: 10px 15px;
-          font-size: 16px;
-          border-radius: 6px;
-          cursor: pointer;
-        }
-      </style>
-      </head><body>
-      <h2>Preview Data Customer & Pengelompokan Rail</h2>
-      ${tabelCustomer}
-      ${tabelHasil}
-    `);
+    
+    // Cek apakah window berhasil dibuka (tidak diblokir popup blocker)
+    if (!previewWindow) {
+      alert("Popup diblokir! Silakan izinkan popup untuk browser ini.");
+      return;
+    }
 
+      // === FUNGSI CETAK HASIL ===
+  function printHasil() {
+    const content = document.getElementById('output').innerHTML; // Ambil konten hasil
+    
+    // Cek apakah ada konten untuk dicetak
+    if (!content || content.trim() === '') {
+      alert("Tidak ada data untuk dicetak. Silakan lakukan pengelompokan terlebih dahulu.");
+      return;
+    }
+    
+    // Buka window baru untuk print
+    const printWindow = window.open('', '', 'height=700,width=800');
+    
+    // Cek apakah window berhasil dibuka
+    if (!printWindow) {
+      alert("Popup diblokir! Silakan izinkan popup untuk browser ini.");
+      return;
+    }
+
+    // Tunggu window siap lalu tulis konten
+    setTimeout(() => {
+      try {
+        printWindow.document.write(`
+          <html>
+          <head>
+            <title>Cetak Data Rail Gorden</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              .group { margin-bottom: 10px; padding: 10px; border-left: 5px solid #007bff; background: #f8f9fa; }
+            </style>
+          </head>
+          <body>
+            ${content}
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print(); // Trigger print dialog
+      } catch (error) {
+        console.error("Error saat mencetak:", error);
+        alert("Gagal mencetak. Silakan coba lagi.");
+      }
+    }, 100);
+  }
+
+    // === MEMBUAT LINK WHATSAPP ===
+    // Gabungkan semua data untuk dikirim via WhatsApp
     const teksWA = encodeURIComponent(
       `📋 Data Rail Gorden\nNama: ${nama}\nAlamat: ${alamat}\nHP: ${hp}\nTanggal: ${tanggal}\nWaktu: ${waktu}\nJenis: ${jenis}\n\n${hasilKelompok}`
     );
 
-    previewWindow.document.write(`
-      <br>
-      <button onclick="window.open('https://wa.me/?text=${teksWA}', '_blank')">
-        📤 Share ke WhatsApp
-      </button>
-    `);
+    // Tunggu sampai window siap, lalu tulis konten
+    setTimeout(() => {
+      try {
+        previewWindow.document.write(`
+          <html><head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Preview Data</title>
+          <style>
+            body { font-family: Arial; padding: 15px; }
+            h2 { text-align: center; }
+            table { font-size: 14px; }
+            th, td { padding: 8px; }
+            button {
+              margin-top: 15px;
+              background-color: #25D366; /* Warna hijau WhatsApp */
+              color: white;
+              border: none;
+              padding: 10px 15px;
+              font-size: 16px;
+              border-radius: 6px;
+              cursor: pointer;
+            }
+          </style>
+          </head><body>
+          <h2>Preview Data Customer & Pengelompokan Rail</h2>
+          ${tabelCustomer}
+          ${tabelHasil}
+          <br>
+          <button onclick="window.open('https://wa.me/?text=${teksWA}', '_blank')">
+            📤 Share ke WhatsApp
+          </button>
 
-    previewWindow.document.write("</body></html>");
-    previewWindow.document.close();
+          <br>
+
+          <button id="printBtn" onclick="window.print();">
+            🖨 Cetak Hasil
+          </button>
+          </body>
+          </html>
+        `);
+        previewWindow.document.close();
+      } catch (error) {
+        console.error("Error saat membuka preview window:", error);
+        alert("Gagal membuka preview. Silakan coba lagi.");
+      }
+    }, 100); // Delay 100ms untuk memastikan window siap
+
+
   }
 
-  function printHasil() {
-    const content = document.getElementById('output').innerHTML;
-    const printWindow = window.open('', '', 'height=700,width=800');
-    printWindow.document.write('<html><head><title>Cetak Data</title></head><body>');
-    printWindow.document.write(content);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.print();
-  }
-
+  // === FUNGSI SIMPAN DATA ===
   function simpanData() {
+    // Ambil semua data customer
     const nama = document.getElementById("namaCustomer").value;
     const alamat = document.getElementById("alamatCustomer").value;
     const hp = document.getElementById("hpCustomer").value;
@@ -250,6 +712,7 @@
     const waktu = document.getElementById("waktuPekerjaan").value;
     const jenis = document.getElementById("jenisRail").value;
 
+    // === FORMAT KONTEN FILE ===
     const isi = 
 `NAMA CUSTOMER : ${nama}
 ALAMAT        : ${alamat}
@@ -261,12 +724,20 @@ JENIS RAIL    : ${jenis}
 HASIL PENGELOMPOKAN:
 ${hasilKelompok}`;
 
+    // === MEMBUAT DAN DOWNLOAD FILE ===
+    // Buat blob dengan konten text
     const blob = new Blob([isi], { type: "text/plain;charset=utf-8" });
+    
+    // Buat URL object dari blob
     const url = URL.createObjectURL(blob);
+    
+    // Buat element anchor untuk download
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rail_gorden_${nama.replace(/\s+/g, '_')}.txt`;
-    a.click();
+    a.download = `rail_gorden_${nama.replace(/\s+/g, '_')}.txt`; // Nama file berdasarkan nama customer
+    a.click(); // Trigger download
+    
+    // Bersihkan URL object dari memory
     URL.revokeObjectURL(url);
   }
 </script>

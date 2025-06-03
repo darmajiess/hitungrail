@@ -448,7 +448,7 @@
   </div>
   
   <!-- === HEADER APLIKASI === -->
-  <h1 class="app-title">SIMULASI PENGELOMPOKAN RAIL GORDEN IG - DG - MG - RG - IDD - BG </h1>
+  <h1 class="app-title">Simulasi Pengelompokan Rail Gorden</h1>
   
   <div class="app-description">
     Aplikasi untuk mengelompokkan potongan rail gorden menjadi batang dengan panjang maksimal tertentu. 
@@ -564,9 +564,28 @@
     const maxLength = parseInt(document.getElementById('maxLength').value); // Panjang maksimal per batang
     
     // Parsing input: split per baris, convert ke integer, filter yang valid
-    const potongan = input.split('\n')
-      .map(x => parseInt(x.trim())) // Konversi ke angka
-      .filter(x => !isNaN(x)); // Hapus yang bukan angka
+	// MODIFIED PARSING: Support format "100 x3" dan angka tunggal
+	const lines = input.split('\n');
+	let potongan = [];
+
+	lines.forEach(line => {
+	line = line.trim();
+		if (!line) return; // Skip empty lines
+  
+	// Check for format: <number> x <quantity>
+		const match = line.match(/^(\d+)\s*x\s*(\d+)$/i);
+			if (match) {
+			const length = parseInt(match[1], 10);
+			const count = parseInt(match[2], 10);
+				for (let i = 0; i < count; i++) {
+				potongan.push(length);
+			}
+		} 
+		// Check for single number
+		else if (/^\d+$/.test(line)) {
+			potongan.push(parseInt(line, 10));
+		}
+});
     
     // Mengurutkan dari besar ke kecil (algoritma greedy)
     potongan.sort((a, b) => b - a);
